@@ -10,6 +10,7 @@ project(qr_code_location)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+tf
   std_msgs
   std_srvs
 cv_bridge
