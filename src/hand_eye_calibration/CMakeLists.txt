@@ -1,23 +1,29 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(aruco-test)
+project(hand_eye_calibration)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+## Add support for C++11, supported in ROS Kinetic and newer
+# add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 find_package(catkin REQUIRED COMPONENTS
+  actionlib
+  actionlib_msgs
+  control_msgs
+  cv_bridge
+  image_transport
+  moveit_core
+  moveit_ros_planning
+  moveit_ros_planning_interface
   roscpp
+  sensor_msgs
   std_msgs
-  qt_build
-  kdl_parser
+  tf
 )
+find_package( OpenCV 3 REQUIRED)
 
-find_package(orocos_kdl)
-find_package(OpenCV REQUIRED)
-include_directories(${catkin_INCLUDE_DIRS}
- "/usr/include/eigen3")
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -75,7 +81,7 @@ include_directories(${catkin_INCLUDE_DIRS}
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   actionlib_msgs#   control_msgs#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -103,14 +109,14 @@ include_directories(${catkin_INCLUDE_DIRS}
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
+## INCLUDE_DIRS: uncomment this if you package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES pkgtest01
-#  CATKIN_DEPENDS roscpp std_msgs
+#  LIBRARIES Hand_Eye_calibration
+#  CATKIN_DEPENDS actionlib actionlib_msgs control_msgs cv_bridge image_transport moveit_core moveit_ros_planning moveit_ros_planning_interface roscpp sensor_msgs std_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -120,14 +126,16 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+# include_directories(include)
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INC}
+   "include/hand_eye_calibration"
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pkgtest01.cpp
+#   src/${PROJECT_NAME}/Hand_Eye_calibration.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -138,7 +146,31 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/main.cpp)
+add_executable(getdata_node src/getdata_node.cpp src/calibrationbase.cpp)
+target_link_libraries(getdata_node  ${catkin_LIBRARIES} ${OpenCV_LIBS} )
+
+add_executable(auto_getdata_node src/auto_getdata_node.cpp src/calibrationbase.cpp)
+target_link_libraries(auto_getdata_node  ${catkin_LIBRARIES} ${OpenCV_LIBS} )
+
+add_executable(eyetohand_calib_node src/eyetohand_calib_node.cpp src/calibrationbase.cpp  src/setting.cpp)
+target_link_libraries(eyetohand_calib_node  ${catkin_LIBRARIES}  ${OpenCV_LIBS})
+
+add_executable(eyeinhand_calib_node src/eyeinhand_calib_node.cpp src/calibrationbase.cpp  src/setting.cpp)
+target_link_libraries(eyeinhand_calib_node  ${catkin_LIBRARIES} ${OpenCV_LIBS} )
+
+add_executable(get_robot_jointstate_node src/get_robot_jointstate_node.cpp src/calibrationbase.cpp )
+target_link_libraries(get_robot_jointstate_node  ${catkin_LIBRARIES}  ${OpenCV_LIBS})
+
+
+
+
+
+
+
+
+
+
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,9 +183,9 @@ add_executable(${PROJECT_NAME}_node src/main.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(${PROJECT_NAME}_node
-   ${catkin_LIBRARIES}
-)
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -195,7 +227,7 @@ add_executable(${PROJECT_NAME}_node src/main.cpp)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_pkgtest01.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_Hand_Eye_calibration.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
