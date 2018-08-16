@@ -60,7 +60,7 @@ double d_v = 0.001;
 
 double v_cart = 0.03;
 
-Twist twist_cart;
+Twist twist_end;
 
 int control_cnt = 0;
 
@@ -85,9 +85,6 @@ class CommandReceiver_keyboard {
     //        \n",q_tmp(0),q_tmp(1),q_tmp(2),q_tmp(3),q_tmp(4),q_tmp(5));
     int code = keymsg.code;
     control_cnt = 0;
-
-    SetToZero(twist_cart);
-
     switch (code) {
       case KEY_w:  // w
         break;
@@ -166,6 +163,8 @@ int robot_end_servo(const tf::StampedTransform transform, Twist& twist) {
   translation_vector_pre_1 = translation_vector;
   rotation_vector_pre_1 = rotation_vector;
 
+
+  SetToZero(twist);
   twist(0) = trans_velocity(0);
   twist(1) = trans_velocity(1);
   twist(2) = trans_velocity(2);
@@ -193,30 +192,7 @@ int main(int argc, char** argv) {
 
   kinova_msgs::JointVelocity JointVelPub;
 
-  //    JointStatePub.name.resize(9);
-  //    JointStatePub.position.resize(9);
-
-  //    JointStatePub.name[0]=robotype+"_joint_1";
-  //    JointStatePub.name[1]=robotype+"_joint_2";
-  //    JointStatePub.name[2]=robotype+"_joint_3";
-  //    JointStatePub.name[3]=robotype+"_joint_4";
-  //    JointStatePub.name[4]=robotype+"_joint_5";
-  //    JointStatePub.name[5]=robotype+"_joint_6";
-  //    JointStatePub.name[6]=robotype+"_joint_finger_1";
-  //    JointStatePub.name[7]=robotype+"_joint_finger_2";
-  //    JointStatePub.name[8]=robotype+"_joint_finger_3";
-
-  //    for(int i=0;i<9;i++)
-  //    {
-  //        JointStatePub.position[i]=0;
-  //    }
-
-  //    for(int i=0;i<6;i++)
-  //    {
-  //        twist_cart(i)=0;
-  //    }
-  SetToZero(twist_cart);
-  // twist_cart.Zero();
+  SetToZero(twist_end);
 
   double cnt = 0;
 
@@ -258,15 +234,7 @@ int main(int argc, char** argv) {
   JntArray q_vel_0(joint_num);
   Frame F_init;
   Frame F_now;
-  //    Frame F_dest=...;
 
-  //    int ret = iksolverpos.CartToJnt(q_init,F_dest,q);
-
-  //    for(int i=0;i<6;i++)
-  //    {
-  //        q_init(i)=0;
-  //        q_now(i)=0;
-  //    }
 
   q_init(0) = 1;
   q_init(1) = 1;
@@ -276,15 +244,6 @@ int main(int argc, char** argv) {
   q_init(5) = 1;
 
   q_now.resize(joint_num);
-
-  // q_init(0)=26188.316285;
-  // q_init(1)=-24565.820627;
-  // q_init(2)=40093.660688 ;
-  // q_init(3)=-102626.646365 ;
-  // q_init(4)=27251.082089 ;
-  // q_init(5)=-2661.168053;
-
-  //    q_now=q_init;
 
   if (fksolver1.JntToCart(q_init, F_init) != 0) {
     ROS_ERROR("Failed to solve init cart");
@@ -306,20 +265,17 @@ int main(int argc, char** argv) {
       //          continue;
     }
 
-    ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist_cart(0), twist_cart(1),
-             twist_cart(2), twist_cart(3), twist_cart(4), twist_cart(5));
 
-    if (iksolver1v.CartToJnt(q_now, twist_cart, q_vel_0) != 0) {
+    robot_end_servo(transform, twist_end);
+
+    ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist_end(0), twist_end(1),
+             twist_end(2), twist_end(3), twist_end(4), twist_end(5));
+
+    if (iksolver1v.CartToJnt(q_now, twist_end, q_vel_0) != 0) {
       ROS_ERROR("Failed to solve jnt");
     } else {
       for (int i = 0; i < 6; i++) {
-        q_vel(i) = q_vel_0(i) * 180 / 3.14159;
-      }
-      if (control_cnt > control_cnt_MAX) {
-        SetToZero(twist_cart);
-        for (int i = 0; i < 6; i++) {
-          q_vel(i) = 0;
-        }
+        q_vel(i) = q_vel_0(i) * 180.0 / M_PI;
       }
 
       JointVelPub.joint1 = q_vel(0);
@@ -329,15 +285,9 @@ int main(int argc, char** argv) {
       JointVelPub.joint5 = q_vel(4);
       JointVelPub.joint6 = q_vel(5);
 
-      //        cout<<F_dest.p<<endl;
-      // JointStatePub.position[1]=;
-      //        ROS_INFO("%d",nj);
-      //        ROS_INFO("%f",angle);
-
       robot_joint_velocity_publisher.publish(JointVelPub);
     }
-    control_cnt += 1;
-    cnt += 1;
+
     ros::spinOnce();
     loop_rate.sleep();
   }
