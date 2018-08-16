@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.1.2, 2018-08-15T18:01:20. -->
+<!-- Written by QtCreator 3.1.2, 2018-08-15T21:34:57. -->
 <qtcreator>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -207,7 +207,7 @@
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="bool" key="CMakeProjectManager.CMakeRunConfiguration.UseTerminal">false</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">image_capture</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
@@ -258,7 +258,7 @@
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="bool" key="CMakeProjectManager.CMakeRunConfiguration.UseTerminal">false</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">QR_code_generation</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
@@ -309,7 +309,7 @@
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="bool" key="CMakeProjectManager.CMakeRunConfiguration.UseTerminal">false</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">image_capture_to_ros</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
@@ -360,7 +360,7 @@
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="bool" key="CMakeProjectManager.CMakeRunConfiguration.UseTerminal">false</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">camera_calibration</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
@@ -411,7 +411,7 @@
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.Arguments"></value>
     <value type="bool" key="CMakeProjectManager.CMakeRunConfiguration.UseTerminal">false</value>
     <value type="QString" key="CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory"></value>
-    <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">gen_qr</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
