@@ -57,7 +57,7 @@ int main(int argc, char** argv)
   Ptr<aruco::Dictionary> dictionary = aruco::getPredefinedDictionary(
       aruco::PREDEFINED_DICTIONARY_NAME(cv::aruco::DICT_4X4_50));
 
-  VideoCapture capture(1), capture0(0);
+  VideoCapture  capture0(0),capture(3);
   namedWindow("hhh", CV_WINDOW_AUTOSIZE);
   int count = 0;
   while (ros::ok()) {
@@ -112,18 +112,25 @@ int main(int argc, char** argv)
             qr_code_flip, ros::Time::now(), "qr_code", "qr_code_flip"));
 
         tf::Transform ee_target;
-        ee_target.setOrigin(tf::Vector3(0.0, 0.0, -0.2));
+        ee_target.setOrigin(tf::Vector3(0.0, 0.0, -0.1));
         rot_q.setRotation(tf::Vector3(1.0, 1.0, 1.0), 0);
         ee_target.setRotation(rot_q);
         tf_broadcaster.sendTransform(tf::StampedTransform(
             ee_target, ros::Time::now(), "qr_code_flip", "ee_target"));
 
+//        tf::Transform ee_to_camera;
+//        ee_to_camera.setOrigin(tf::Vector3(0.0, 0.0, 0.05));
+//        rot_q.setRotation(tf::Vector3(1.0, 1.0, 1.0), 0);
+//        ee_to_camera.setRotation(rot_q);
+//        tf_broadcaster.sendTransform(tf::StampedTransform(
+//            ee_to_camera, ros::Time::now(), "ee_link", "camera_link"));
+
         tf::Transform ee_to_camera;
-        ee_to_camera.setOrigin(tf::Vector3(0.0, 0.0, 0.05));
+        ee_to_camera.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
         rot_q.setRotation(tf::Vector3(1.0, 1.0, 1.0), 0);
         ee_to_camera.setRotation(rot_q);
         tf_broadcaster.sendTransform(tf::StampedTransform(
-            ee_to_camera, ros::Time::now(), "ee_link", "camera_link"));
+            ee_to_camera, ros::Time::now(), "m1n6s300_link_6", "ee_link"));
 
       }
     }

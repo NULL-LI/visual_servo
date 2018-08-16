@@ -64,7 +64,7 @@ Twist twist_end;
 
 int control_cnt = 0;
 
-double trans_kp = 0;
+double trans_kp = 0.05;
 double trans_ki = 0;
 double trans_kd = 0;
 
@@ -162,7 +162,7 @@ int robot_end_servo(const tf::StampedTransform transform, Twist& twist) {
   rotation_vector_pre_2 = rotation_vector_pre_1;
   translation_vector_pre_1 = translation_vector;
   rotation_vector_pre_1 = rotation_vector;
-
+rot_omega=Vector3f::Zero();
 
   SetToZero(twist);
   twist(0) = trans_velocity(0);
@@ -257,7 +257,7 @@ int main(int argc, char** argv) {
   while (ros::ok()) {
     tf::StampedTransform transform;
     try {
-      tf_listener.lookupTransform("ee_target", "ee_link", ros::Time(0),
+      tf_listener.lookupTransform("ee_link", "ee_target", ros::Time(0),
                                   transform);
     } catch (tf::TransformException& ex) {
       ROS_ERROR("%s", ex.what());
@@ -268,8 +268,8 @@ int main(int argc, char** argv) {
 
     robot_end_servo(transform, twist_end);
 
-    ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist_end(0), twist_end(1),
-             twist_end(2), twist_end(3), twist_end(4), twist_end(5));
+//    ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist_end(0), twist_end(1),
+//             twist_end(2), twist_end(3), twist_end(4), twist_end(5));
 
     if (iksolver1v.CartToJnt(q_now, twist_end, q_vel_0) != 0) {
       ROS_ERROR("Failed to solve jnt");
@@ -284,6 +284,10 @@ int main(int argc, char** argv) {
       JointVelPub.joint4 = q_vel(3);
       JointVelPub.joint5 = q_vel(4);
       JointVelPub.joint6 = q_vel(5);
+
+      ROS_INFO("q_vel: %f %f %f %f %f %f ", q_vel(0), q_vel(1),
+               q_vel(2), q_vel(3), q_vel(4), q_vel(5));
+
 
       robot_joint_velocity_publisher.publish(JointVelPub);
     }
