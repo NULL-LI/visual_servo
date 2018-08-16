@@ -90,28 +90,6 @@ class CommandReceiver_keyboard {
 
     switch (code) {
       case KEY_w:  // w
-        F_dest.p(0) += d_v;
-        twist_cart(0) = v_cart;
-        break;
-      case KEY_s:
-        F_dest.p(0) -= d_v;
-        twist_cart(0) = -v_cart;
-        break;
-      case KEY_a:
-        F_dest.p(1) += d_v;
-        twist_cart(1) = v_cart;
-        break;
-      case KEY_d:
-        F_dest.p(1) -= d_v;
-        twist_cart(1) = -v_cart;
-        break;
-      case KEY_UP:
-        F_dest.p(2) += d_v;
-        twist_cart(2) = v_cart;
-        break;
-      case KEY_DOWN:
-        F_dest.p(2) -= d_v;
-        twist_cart(2) = -v_cart;
         break;
       default:
         break;
