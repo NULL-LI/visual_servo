@@ -64,9 +64,9 @@ Twist twist_end;
 
 int control_cnt = 0;
 
-double trans_kp = 0.4;
-double trans_ki = 0.0005;
-double trans_kd = 0.01;
+double trans_kp = 0.8;
+double trans_ki = 0.0002;
+double trans_kd = 10.0;
 
 double rot_kp = trans_kp;
 double rot_ki = trans_ki;
@@ -339,7 +339,7 @@ speed_translate(transform, twist_end);
         }
       }
       for (int i = 0; i < 6; i++) {
-        q_vel(i) = q_vel_0(i) * 180.0 / max(M_PI,q_abs_vel_max*12) ;
+        q_vel(i) = q_vel_0(i) * 180.0 / max(M_PI,q_abs_vel_max*3) ;
       }
       JointVelPub.joint1 = q_vel(0);
       JointVelPub.joint2 = q_vel(1);
