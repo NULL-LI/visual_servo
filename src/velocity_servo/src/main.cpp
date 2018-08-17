@@ -64,11 +64,11 @@ Twist twist_end;
 
 int control_cnt = 0;
 
-double trans_kp = 0.05;
-double trans_ki = 0;
-double trans_kd = 0;
+double trans_kp = 0.1;
+double trans_ki = 0.000;
+double trans_kd = 0.00;
 
-double rot_kp = 0;
+double rot_kp = 0.001;
 double rot_ki = 0;
 double rot_kd = 0;
 
@@ -101,13 +101,13 @@ class CommandReceiver_keyboard {
   ros::Subscriber sub;
 };
 
-class CommandReceiver_robo_vel {
+class CommandReceiver_robo_pos {
  public:
-  CommandReceiver_robo_vel() {
+  CommandReceiver_robo_pos() {
     // chatter_pub_0 = n.advertise<sensor_msgs::JointState>("joint_states_test",
     // 1000);
     sub = n.subscribe("m1n6s300_driver/out/joint_state", 1000,
-                      &CommandReceiver_robo_vel::callback, this);
+                      &CommandReceiver_robo_pos::callback, this);
   }
   void callback(const sensor_msgs::JointState& kinova_states) {
     for (int i = 0; i < 6; i++) {
@@ -128,6 +128,9 @@ Vector3f translation_vector_pre_1 = Vector3f::Zero();
 Vector3f rotation_vector_pre_1 = Vector3f::Zero();
 Vector3f translation_vector_pre_2 = Vector3f::Zero();
 Vector3f rotation_vector_pre_2 = Vector3f::Zero();
+
+int vec_out_cnt_max=10;
+int vec_out_cnt=vec_out_cnt_max;
 
 int robot_end_servo(const tf::StampedTransform transform, Twist& twist) {
   tf::Vector3 translation = transform.getOrigin();
@@ -162,7 +165,7 @@ int robot_end_servo(const tf::StampedTransform transform, Twist& twist) {
   rotation_vector_pre_2 = rotation_vector_pre_1;
   translation_vector_pre_1 = translation_vector;
   rotation_vector_pre_1 = rotation_vector;
-rot_omega=Vector3f::Zero();
+//   rot_omega=Vector3f::Zero();
 
   SetToZero(twist);
   twist(0) = trans_velocity(0);
@@ -173,7 +176,39 @@ rot_omega=Vector3f::Zero();
   twist(4) = rot_omega(1);
   twist(5) = rot_omega(2);
 
+
+  vec_out_cnt--;
+  if(vec_out_cnt<0)
+  {
+  cout << "trans_vect :" << translation_vector.transpose()
+       << "  rot_vect: " << rotation_vector.transpose() << endl;
+  ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist(0), twist(1),
+           twist(2), twist(3), twist(4), twist(5));
+  vec_out_cnt=vec_out_cnt_max;
+}
   return 0;
+}
+
+int speed_translate(const tf::StampedTransform transform, Twist& twist) {
+    tf::Quaternion end_to_base_q_tf=transform.getRotation();
+Eigen::Quaterniond end_to_base_q(end_to_base_q_tf);
+Eigen::Matrix3d end_to_base_m(end_to_base_q);
+
+Eigen::Vector3d speed(twist(0), twist(1),twist(2));
+Eigen::Vector3d omega(twist(3), twist(4), twist(5));
+
+speed=end_to_base_m*speed;
+omega=end_to_base_m*omega;
+
+twist(0) = speed(0);
+twist(1) = speed(1);
+twist(2) = speed(2);
+
+twist(3) = omega(0);
+twist(4) = omega(1);
+twist(5) = omega(2);
+
+return 0;
 }
 
 int main(int argc, char** argv) {
@@ -235,7 +270,6 @@ int main(int argc, char** argv) {
   Frame F_init;
   Frame F_now;
 
-
   q_init(0) = 1;
   q_init(1) = 1;
   q_init(2) = 1;
@@ -253,23 +287,33 @@ int main(int argc, char** argv) {
   F_dest = F_init;
 
   CommandReceiver_keyboard command_receiver_keyboard;  //监视Topic中命令
-  CommandReceiver_robo_vel command_receiver_robo_vel;  // refresh q_now
+  CommandReceiver_robo_pos command_receiver_robo_pos;  // refresh q_now
   while (ros::ok()) {
     tf::StampedTransform transform;
     try {
-      tf_listener.lookupTransform("ee_link", "ee_target", ros::Time(0),
-                                  transform);
+      tf_listener.waitForTransform( robotype + "_end_effector","ee_target",
+                                   ros::Time(0), ros::Duration(10.0));
+      tf_listener.lookupTransform(robotype + "_end_effector","ee_target",
+                                  ros::Time(0), transform);
+
     } catch (tf::TransformException& ex) {
       ROS_ERROR("%s", ex.what());
-      //          ros::Duration(1.0).sleep();
-      //          continue;
     }
 
-
     robot_end_servo(transform, twist_end);
+    try {
+      tf_listener.waitForTransform( robotype + "_end_effector",robotype + "_link_base",
+                                   ros::Time(0), ros::Duration(10.0));
+      tf_listener.lookupTransform(robotype + "_end_effector",robotype + "_link_base",
+                                  ros::Time(0), transform);
 
-//    ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist_end(0), twist_end(1),
-//             twist_end(2), twist_end(3), twist_end(4), twist_end(5));
+    } catch (tf::TransformException& ex) {
+      ROS_ERROR("%s", ex.what());
+    }
+
+speed_translate(transform, twist_end);
+
+
 
     if (iksolver1v.CartToJnt(q_now, twist_end, q_vel_0) != 0) {
       ROS_ERROR("Failed to solve jnt");
@@ -285,9 +329,9 @@ int main(int argc, char** argv) {
       JointVelPub.joint5 = q_vel(4);
       JointVelPub.joint6 = q_vel(5);
 
-      ROS_INFO("q_vel: %f %f %f %f %f %f ", q_vel(0), q_vel(1),
-               q_vel(2), q_vel(3), q_vel(4), q_vel(5));
-
+      //      ROS_INFO("q_vel: %f %f %f %f %f %f ", q_vel(0), q_vel(1),
+      //      q_vel(2),
+      //               q_vel(3), q_vel(4), q_vel(5));
 
       robot_joint_velocity_publisher.publish(JointVelPub);
     }
