@@ -121,7 +121,7 @@ int main(int argc, char** argv)
             qr_code_flip, ros::Time::now(), "qr_code", "qr_code_flip"));
 
         tf::Transform ee_target;
-        ee_target.setOrigin(tf::Vector3(0.0, 0.0, -0.25));
+        ee_target.setOrigin(tf::Vector3(0.0, 0.0, -0.35));
         rot_q.setRotation(tf::Vector3(1.0, 1.0, 1.0), 0);
         ee_target.setRotation(rot_q);
         tf_broadcaster.sendTransform(tf::StampedTransform(

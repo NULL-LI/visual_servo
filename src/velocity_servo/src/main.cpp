@@ -64,13 +64,17 @@ Twist twist_end;
 
 int control_cnt = 0;
 
-double trans_kp = 0.1;
-double trans_ki = 0.000;
-double trans_kd = 0.00;
+double trans_kp = 0.4;
+double trans_ki = 0.0005;
+double trans_kd = 0.01;
 
-double rot_kp = 0.001;
-double rot_ki = 0;
-double rot_kd = 0;
+double rot_kp = trans_kp;
+double rot_ki = trans_ki;
+double rot_kd = trans_kd;
+
+//double rot_kp = 0.02;
+//double rot_ki = 0.0002;
+//double rot_kd = 0.005;
 
 class CommandReceiver_keyboard {
  public:
@@ -129,7 +133,7 @@ Vector3f rotation_vector_pre_1 = Vector3f::Zero();
 Vector3f translation_vector_pre_2 = Vector3f::Zero();
 Vector3f rotation_vector_pre_2 = Vector3f::Zero();
 
-int vec_out_cnt_max=10;
+int vec_out_cnt_max=20;
 int vec_out_cnt=vec_out_cnt_max;
 
 int robot_end_servo(const tf::StampedTransform transform, Twist& twist) {
@@ -182,8 +186,8 @@ int robot_end_servo(const tf::StampedTransform transform, Twist& twist) {
   {
   cout << "trans_vect :" << translation_vector.transpose()
        << "  rot_vect: " << rotation_vector.transpose() << endl;
-  ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist(0), twist(1),
-           twist(2), twist(3), twist(4), twist(5));
+//  ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist(0), twist(1),
+//           twist(2), twist(3), twist(4), twist(5));
   vec_out_cnt=vec_out_cnt_max;
 }
   return 0;
@@ -207,7 +211,15 @@ twist(2) = speed(2);
 twist(3) = omega(0);
 twist(4) = omega(1);
 twist(5) = omega(2);
-
+vec_out_cnt--;
+if(vec_out_cnt<0)
+{
+//  cout << "trans_vect :" << translation_vector.transpose()
+//       << "  rot_vect: " << rotation_vector.transpose() << endl;
+//ROS_INFO("twist_cart: %f %f %f %f %f %f ", twist(0), twist(1),
+//         twist(2), twist(3), twist(4), twist(5));
+vec_out_cnt=vec_out_cnt_max;
+}
 return 0;
 }
 
@@ -318,10 +330,17 @@ speed_translate(transform, twist_end);
     if (iksolver1v.CartToJnt(q_now, twist_end, q_vel_0) != 0) {
       ROS_ERROR("Failed to solve jnt");
     } else {
+        double q_abs_vel_max=0;
       for (int i = 0; i < 6; i++) {
-        q_vel(i) = q_vel_0(i) * 180.0 / M_PI;
+//        q_vel(i) = q_vel_0(i) * 180.0 / M_PI;
+        if(q_abs_vel_max<fabs(q_vel(i)))
+        {
+            q_abs_vel_max=fabs(q_vel(i));
+        }
       }
-
+      for (int i = 0; i < 6; i++) {
+        q_vel(i) = q_vel_0(i) * 180.0 / max(M_PI,q_abs_vel_max*12) ;
+      }
       JointVelPub.joint1 = q_vel(0);
       JointVelPub.joint2 = q_vel(1);
       JointVelPub.joint3 = q_vel(2);
